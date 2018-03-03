@@ -39,7 +39,7 @@ func (test Test) Title() string {
 
 // Assert is the function which gets run to compare the Test results
 func (test Test) Assert(t *testing.T) {
-	compareValues(t, test.Actual, test.Expected)
+	CompareValues(t, test.Actual, test.Expected)
 }
 
 // TestWithErr is a Testable struct with a return value and an error
@@ -56,22 +56,35 @@ func (test TestWithErr) Title() string {
 
 // Assert is the function which gets run to compare the TestWithErr results
 func (test TestWithErr) Assert(t *testing.T) {
-	err := test.Actual[1]
-	wantErr := test.Expected[1]
-	if (err != nil) != wantErr {
-		t.Errorf("Expected error: %v, Actual error: %v", wantErr, err)
-		return
+	if CompareErrors(t, test.Actual[1], test.Expected[1]) {
+		CompareValues(t, test.Actual[0], test.Expected[0])
 	}
-	compareValues(t, test.Actual[0], test.Expected[0])
 }
 
-func compareValues(t *testing.T, actual interface{}, expected interface{}) {
+// CompareValues does a deep compoare of the values and types of the passed
+func CompareValues(t *testing.T, actual interface{}, expected interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
 		if reflect.TypeOf(actual) == reflect.TypeOf(expected) {
 			t.Errorf("Expected: %v, Actual: %v", expected, actual)
 		} else {
 			t.Errorf("Expected: [%T]%v, Actual: [%T]%v", expected, expected, actual, actual)
 		}
+	}
+}
+
+// CompareErrors compoares actual and expected errors
+func CompareErrors(t *testing.T, actualErr interface{}, expectedErr interface{}) bool {
+	if (actualErr != nil) != expectedErr {
+		t.Errorf("Expected error: %v, Actual error: %v", expectedErr, actualErr)
+		return false
+	}
+	return true
+}
+
+// CompareValuesWithErrors compares tupples with both values and error
+func CompareValuesWithErrors(t *testing.T, actual []interface{}, expected []interface{}) {
+	if CompareErrors(t, actual[1], expected[1]) {
+		CompareValues(t, actual[0], expected[0])
 	}
 }
 
