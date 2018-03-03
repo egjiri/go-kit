@@ -7,18 +7,19 @@ import (
 )
 
 // Replace provides a way to change the content of a string based on regex matches
-func Replace(content string, regexQuery string, replaceMap map[int]string) (string, error) {
+func Replace(content *[]byte, regexQuery string, replaceMap map[int]string) error {
 	rx, err := regexp.Compile(regexQuery)
 	if err != nil {
-		return content, err
+		return err
 	}
-	matches := rx.FindStringSubmatch(content)
+	strContent := string(*content)
+	matches := rx.FindStringSubmatch(strContent)
 	for i, value := range replaceMap {
 		if len(matches) <= i {
-			return content, fmt.Errorf("Out of bounds")
+			return fmt.Errorf("Out of bounds")
 		}
 		updatedSection := strings.Replace(matches[0], matches[i], value, 1)
-		content = strings.Replace(content, matches[0], updatedSection, 1)
+		*content = []byte(strings.Replace(strContent, matches[0], updatedSection, 1))
 	}
-	return content, nil
+	return nil
 }
