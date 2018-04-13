@@ -1,11 +1,17 @@
 package testing
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/kr/pretty"
 )
+
+// DiffVisible is a flag which dictatest whether the diff message should be shown failed assertions
+var DiffVisible = false
 
 // Testable is an interface that other structs can implement to aid in testing
 type Testable interface {
@@ -64,6 +70,7 @@ func (test TestWithErr) Assert(t *testing.T) {
 // CompareValues does a deep compoare of the values and types of the passed
 func CompareValues(t *testing.T, actual interface{}, expected interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
+		showDiff(actual, expected)
 		if reflect.TypeOf(actual) == reflect.TypeOf(expected) {
 			t.Errorf("Expected: %v, Actual: %v", expected, actual)
 		} else {
@@ -75,6 +82,7 @@ func CompareValues(t *testing.T, actual interface{}, expected interface{}) {
 // CompareErrors compoares actual and expected errors
 func CompareErrors(t *testing.T, actualErr interface{}, expectedErr interface{}) bool {
 	if (actualErr != nil) != expectedErr {
+		showDiff(actualErr, expectedErr)
 		t.Errorf("Expected error: %v, Actual error: %v", expectedErr, actualErr)
 		return false
 	}
@@ -113,4 +121,12 @@ func TempFileFromFile(filepath string) (f *os.File, err error) {
 	}
 	return TempFileWithContent(content)
 	// Note: Make sure to cleanup the file when done by calling: defer os.Remove(tmpfile.Name())
+}
+
+func showDiff(actual interface{}, expected interface{}) {
+	if DiffVisible {
+		fmt.Println("↓↓↓↓↓↓↓↓↓↓ DIFF ↓↓↓↓↓↓↓↓↓↓")
+		fmt.Println(pretty.Diff(actual, expected))
+		fmt.Println("↑↑↑↑↑↑↑↑↑↑ DIFF ↑↑↑↑↑↑↑↑↑↑")
+	}
 }
