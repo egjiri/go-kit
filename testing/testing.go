@@ -67,6 +67,23 @@ func (test TestWithErr) Assert(t *testing.T) {
 	}
 }
 
+// TestErr is a Testable struct with a return value and an error
+type TestErr struct {
+	Name     string
+	Actual   error
+	Expected bool
+}
+
+// Title returns a string to display on the console when running the test
+func (test TestErr) Title() string {
+	return test.Name
+}
+
+// Assert is the function which gets run to compare the TestErr results
+func (test TestErr) Assert(t *testing.T) {
+	CompareErrors(t, test.Actual, test.Expected)
+}
+
 // CompareValues does a deep compoare of the values and types of the passed
 func CompareValues(t *testing.T, actual interface{}, expected interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
