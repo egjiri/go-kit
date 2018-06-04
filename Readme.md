@@ -1,2 +1,2 @@
-# Go Utils
-A collection of useful packages that can be used across projects.
+# Go Kit
+A collection of useful Go packages that can be used across projects.

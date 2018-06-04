@@ -37,18 +37,16 @@ func MoveTo(row, col int) string { return escape(move, row, col) }
 func MoveVertical(n int) string {
 	if n > 0 {
 		return escape(up, n)
-	} else {
-		return escape(down, n)
 	}
+	return escape(down, n)
 }
 
 // MoveHorizontal moves the cursor left or right
 func MoveHorizontal(n int) string {
 	if n > 0 {
 		return escape(forward, n)
-	} else {
-		return escape(backward, n)
 	}
+	return escape(backward, n)
 }
 
 // Save remembers the last cursor location
