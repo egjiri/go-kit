@@ -1,11 +1,12 @@
 package progress
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
+	"github.com/egjiri/go-kit/ui/screen"
 	"github.com/gosuri/uiprogress"
+	"github.com/pkg/errors"
 )
 
 // barManager manages the Progress of the bars
@@ -22,26 +23,17 @@ func NewBar(count int, action string) (*Bar, error) {
 	if count < 1 {
 		return nil, errors.New("invalid progress bar count")
 	}
-
-	b := barManager.AddBar(count)
-	progressBar := Bar{b}
-	startTime := time.Now()
-	var duration string
-	b.PrependFunc(func(b *uiprogress.Bar) string {
-		if progressBar.InProgress() {
-			duration = time.Since(startTime).Round(time.Second).String()
-		}
-		return duration
-	})
-	b.AppendFunc(func(b *uiprogress.Bar) string {
-		return fmt.Sprintf("%.1f%% - %v %v/%v", b.CompletedPercent(), action, b.Current(), b.Total)
-	})
-	return &progressBar, nil
+	bar := Bar{barManager.AddBar(count)}
+	addBarDecorators(&bar, count, action)
+	screen.Add(&bar) // Add progress bar to the screen
+	return &bar, nil
 }
 
 // Incr increments the progress bar
 func (b *Bar) Incr() bool {
-	return b.bar.Incr()
+	res := b.bar.Incr()
+	screen.Refresh() // Refresh screen every time the progress bar increments
+	return res
 }
 
 // InProgress returns whether the progress bar still has more to increment through
@@ -54,7 +46,20 @@ func (b *Bar) String() string {
 	return b.bar.String()
 }
 
-// Start begins the rendering of the progress bars
-func Start() {
-	barManager.Start()
+func addBarDecorators(bar *Bar, count int, action string) {
+	startTime := time.Now()
+	var duration string
+	bar.bar.PrependFunc(func(b *uiprogress.Bar) string {
+		if bar.InProgress() {
+			duration = time.Since(startTime).Round(time.Second).String()
+		}
+		return duration
+	})
+	bar.bar.AppendFunc(func(b *uiprogress.Bar) string {
+		str := fmt.Sprintf("%.1f%%", b.CompletedPercent())
+		if b.CompletedPercent() == 0 {
+			str += "%"
+		}
+		return str + fmt.Sprintf(" - %v %v/%v", action, b.Current(), b.Total)
+	})
 }

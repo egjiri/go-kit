@@ -7,33 +7,27 @@ import (
 	"github.com/egjiri/go-kit/ui/cursor"
 )
 
-var components []*Component
+var components []*component
 
-// Component is a type that keeps track of content to display at the bottom of the screen
-type Component struct {
+// component is a type that keeps track of content to display at the bottom of the screen
+type component struct {
 	staticContent   string
 	dynamicStringer fmt.Stringer
 }
 
-// NewComponent creates a new component with dynamic content based on the
-// resuts of the String() function that gets displayed at the bottom of the screen
-func NewComponent(s fmt.Stringer) *Component {
-	comp := Component{dynamicStringer: s}
-	components = append(components, &comp)
-	return &comp
-}
-
-// NewStaticComponent creates a new component with static content
-// that gets displayed at the bottom of the screen
-func NewStaticComponent(s string) *Component {
-	comp := Component{staticContent: s}
-	components = append(components, &comp)
-	return &comp
-}
-
-// Show prints all the components to the screen in the order they were created
-func Show() {
-	fmt.Println(formattedContent())
+// Add creates a new component with input from either a string of a fmt.Stringer() interface
+// It then gets displayed immediately and also gets stored in components for later processing
+func Add(ss ...interface{}) {
+	for _, s := range ss {
+		var c component
+		if str, ok := s.(string); ok {
+			c = component{staticContent: str}
+		} else if stringer, ok := s.(fmt.Stringer); ok {
+			c = component{dynamicStringer: stringer}
+		}
+		fmt.Println(s)
+		components = append(components, &c)
+	}
 }
 
 // Refresh updates the content of the components and re-displayes them on the screen
@@ -43,20 +37,24 @@ func Refresh() {
 
 // Println prints the passed content to the screen before the content of the components
 func Println(str string) {
-	str = position() + formattedString(str) + "\n" + formattedContent()
-	fmt.Println(str)
+	ensureSpacer()
+	fmt.Println(position() + formattedString(str))
+	content := formattedContent()
+	if content != "" {
+		fmt.Println(content)
+	}
 }
 
-func (c *Component) content() string {
+func (c *component) content() string {
 	str := string(c.staticContent)
 	if c.dynamicStringer != nil {
 		str = c.dynamicStringer.String()
 	}
-	return "\n" + str
+	return str
 }
 
-func (c *Component) heigh() int {
-	count := 0
+func (c *component) heigh() int {
+	count := 1
 	for _, ch := range c.content() {
 		if ch == '\n' {
 			count++
@@ -70,13 +68,15 @@ func position() string {
 	for _, c := range components {
 		p += cursor.MoveVertical(c.heigh())
 	}
-	p += cursor.MoveVertical(1)
 	return p + cursor.MoveHorizontal(-1000)
 }
 
 func formattedContent() string {
 	var str string
-	for _, c := range components {
+	for i, c := range components {
+		if i != 0 {
+			str += "\n"
+		}
 		str += formattedString(c.content())
 	}
 	return str
@@ -92,4 +92,13 @@ func formattedString(str string) string {
 		}
 	}
 	return newStr
+}
+
+func ensureSpacer() {
+	if len(components) > 0 && components[0].content() != "" {
+		// Add a spacer component the first time Println is used
+		spacer := component{}
+		components = append([]*component{&spacer}, components...)
+		fmt.Println()
+	}
 }
