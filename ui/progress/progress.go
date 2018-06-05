@@ -12,19 +12,19 @@ import (
 var barManager = uiprogress.New()
 
 // Bar managest the state of a progres bar
-type bar struct {
+type Bar struct {
 	bar *uiprogress.Bar
 }
 
 // NewBar creates a prgoress bar with reasonable defaults, configurable count
 // and action to display in the suffix of AppendFunc
-func NewBar(count int, action string) (*bar, error) {
+func NewBar(count int, action string) (*Bar, error) {
 	if count < 1 {
 		return nil, errors.New("invalid progress bar count")
 	}
 
 	b := barManager.AddBar(count)
-	progressBar := bar{b}
+	progressBar := Bar{b}
 	startTime := time.Now()
 	var duration string
 	b.PrependFunc(func(b *uiprogress.Bar) string {
@@ -40,17 +40,17 @@ func NewBar(count int, action string) (*bar, error) {
 }
 
 // Incr increments the progress bar
-func (b *bar) Incr() bool {
+func (b *Bar) Incr() bool {
 	return b.bar.Incr()
 }
 
 // InProgress returns whether the progress bar still has more to increment through
-func (b *bar) InProgress() bool {
+func (b *Bar) InProgress() bool {
 	return b.bar.CompletedPercent() < 100
 }
 
 // String returns the string representation of the progress bar
-func (b *bar) String() string {
+func (b *Bar) String() string {
 	return b.bar.String()
 }
 
