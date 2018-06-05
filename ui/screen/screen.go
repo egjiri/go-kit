@@ -15,18 +15,18 @@ type Component struct {
 	dynamicStringer fmt.Stringer
 }
 
-// NewStaticComponent creates a new component with static content
-// that gets displayed at the bottom of the screen
-func NewStaticComponent(s string) *Component {
-	comp := Component{staticContent: s}
+// NewComponent creates a new component with dynamic content based on the
+// resuts of the String() function that gets displayed at the bottom of the screen
+func NewComponent(s fmt.Stringer) *Component {
+	comp := Component{dynamicStringer: s}
 	components = append(components, &comp)
 	return &comp
 }
 
-// NewDynamicComponent creates a new component with dynamic content based on the
-// resuts of the String() function that gets displayed at the bottom of the screen
-func NewDynamicComponent(s fmt.Stringer) *Component {
-	comp := Component{dynamicStringer: s}
+// NewStaticComponent creates a new component with static content
+// that gets displayed at the bottom of the screen
+func NewStaticComponent(s string) *Component {
+	comp := Component{staticContent: s}
 	components = append(components, &comp)
 	return &comp
 }
@@ -43,7 +43,7 @@ func Refresh() {
 
 // Println prints the passed content to the screen before the content of the components
 func Println(str string) {
-	str = position() + cursor.ClearLine() + str + "\n" + formattedContent()
+	str = position() + formattedString(str) + "\n" + formattedContent()
 	fmt.Println(str)
 }
 
@@ -77,13 +77,19 @@ func position() string {
 func formattedContent() string {
 	var str string
 	for _, c := range components {
-		parts := strings.Split(c.content(), "\n")
-		for i, part := range parts {
-			str += part + cursor.ClearLineForward()
-			if i != len(parts)-1 {
-				str += "\n"
-			}
-		}
+		str += formattedString(c.content())
 	}
 	return str
+}
+
+func formattedString(str string) string {
+	var newStr string
+	parts := strings.Split(str, "\n")
+	for i, part := range parts {
+		newStr += part + cursor.ClearLineForward()
+		if i != len(parts)-1 {
+			newStr += "\n"
+		}
+	}
+	return newStr
 }
