@@ -2,16 +2,14 @@ package testing
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"reflect"
 	"testing"
 
 	"github.com/kr/pretty"
 )
 
-// DiffVisible is a flag which dictatest whether the diff message should be shown failed assertions
-var DiffVisible = false
+// DiffVisible is a flag which dictates whether the diff message should be shown failed assertions
+var DiffVisible = true
 
 // Testable is an interface that other structs can implement to aid in testing
 type Testable interface {
@@ -111,33 +109,6 @@ func CompareValuesWithErrors(t *testing.T, actual []interface{}, expected []inte
 	if CompareErrors(t, actual[1], expected[1]) {
 		CompareValues(t, actual[0], expected[0])
 	}
-}
-
-// TempFileWithContent is a utility function which creates a file with specified content and returns the path
-func TempFileWithContent(content []byte) (f *os.File, err error) {
-	tmpfile, err := ioutil.TempFile("", ".tmp-file")
-	if err != nil {
-		return tmpfile, err
-	}
-
-	if _, err := tmpfile.Write(content); err != nil {
-		return tmpfile, err
-	}
-	if err := tmpfile.Close(); err != nil {
-		return tmpfile, err
-	}
-	return tmpfile, nil
-	// Note: Make sure to cleanup the file when done by calling: defer os.Remove(tmpfile.Name())
-}
-
-// TempFileFromFile is a utility function which creates a file with specified content and returns the path
-func TempFileFromFile(filepath string) (f *os.File, err error) {
-	content, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return &os.File{}, err
-	}
-	return TempFileWithContent(content)
-	// Note: Make sure to cleanup the file when done by calling: defer os.Remove(tmpfile.Name())
 }
 
 func showDiff(actual interface{}, expected interface{}) {

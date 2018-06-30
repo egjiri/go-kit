@@ -53,7 +53,7 @@ func (c *component) content() string {
 	return str
 }
 
-func (c *component) heigh() int {
+func (c *component) height() int {
 	count := 1
 	for _, ch := range c.content() {
 		if ch == '\n' {
@@ -66,7 +66,7 @@ func (c *component) heigh() int {
 func position() string {
 	var p string
 	for _, c := range components {
-		p += cursor.MoveVertical(c.heigh())
+		p += cursor.MoveVertical(c.height())
 	}
 	return p + cursor.MoveHorizontal(-1000)
 }
