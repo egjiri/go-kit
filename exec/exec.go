@@ -8,13 +8,13 @@ import (
 	"regexp"
 	"strings"
 
-	ui "github.com/egjiri/go-kit/ui/exec"
+	"github.com/egjiri/go-kit/ui/print"
 )
 
 // ExecuteWithHeading displays a message and then executes the command
 func ExecuteWithHeading(heading, command string) {
-	ui.Heading(heading)
-	ui.Command(command)
+	print.Heading(heading)
+	print.Command(command)
 	ExecuteBash(command)
 }
 
