@@ -24,16 +24,16 @@ func Finished() {
 	color.Green("\nFinished!")
 }
 
-// Panic acceps a string or an error type and prints a red message
+// Fatal acceps a string or an error type and prints a red message
 // to the screen and exits with an error code 1
-func Panic(str interface{}) {
+func Fatal(str interface{}) {
 	switch msg := str.(type) {
 	case error:
 		color.Red(msg.Error())
 	case string:
 		color.Red(msg)
 	default:
-		color.Red("Invalid argument to Panic")
+		color.Red("Invalid argument to Fatal")
 	}
 	os.Exit(1)
 }
@@ -42,6 +42,6 @@ func Panic(str interface{}) {
 // prints it in red and exits with an error code 1
 func CheckError(err error) {
 	if err != nil {
-		Panic(err)
+		Fatal(err)
 	}
 }
