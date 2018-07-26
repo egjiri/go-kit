@@ -23,10 +23,10 @@
   revision = "d0567a9d84a1c40dd7568115ea66f4887bf57b33"
 
 [[projects]]
-  branch = "master"
   name = "github.com/kr/pretty"
   packages = ["."]
-  revision = "cfb55aafdaf3ec08f0db22699ab822c50091b1c4"
+  revision = "73f6ac0b30a98e433b289500d779f50c1a6f0712"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
@@ -61,6 +61,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f84562c007aee38a50beaf698122984b2bbd851cb1c8df2cfbe4aca447e97ebd"
+  inputs-digest = "0815b5835dd6a4bc4697d6d3b0e4fc4bd1b7559ac9494e87e4156fbc33552463"
   solver-name = "gps-cdcl"
   solver-version = 1
