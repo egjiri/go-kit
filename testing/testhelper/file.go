@@ -1,13 +1,16 @@
-package testing
+package testhelper
 
 import (
 	"io/ioutil"
 	"os"
+	"testing"
 )
 
-// TempFile is a utility function which creates a file with specified content.
+// TestFile is a utility function which creates a file with specified content.
 // The passed content can be either a string or []byte
-func TempFile(content interface{}) (*os.File, func()) {
+func TestFile(t *testing.T, content interface{}) (*os.File, func()) {
+	t.Helper()
+
 	var bytesContent []byte
 	switch content := content.(type) {
 	case []byte:
@@ -15,12 +18,12 @@ func TempFile(content interface{}) (*os.File, func()) {
 	case string:
 		bytesContent = []byte(content)
 	default:
-		panic("invalid content: it must be a string or []byte")
+		t.Fatal("invalid content: it must be a string or []byte")
 	}
 
 	tmpfile, err := ioutil.TempFile("", ".tmp-file")
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	cleanup := func() {
 		os.Remove(tmpfile.Name())
@@ -28,21 +31,24 @@ func TempFile(content interface{}) (*os.File, func()) {
 
 	if _, err := tmpfile.Write(bytesContent); err != nil {
 		cleanup()
-		panic(err)
+		t.Fatal(err)
 	}
 	if err := tmpfile.Close(); err != nil {
 		cleanup()
-		panic(err)
+		t.Fatal(err)
 	}
 
 	return tmpfile, cleanup
 }
 
-// TempFileFromFile is a utility function which creates a file with specified content and returns the path
-func TempFileFromFile(filepath string) (*os.File, func()) {
+// TestFileFromFile is a utility function which creates a file with the
+// content of the file read from the specified filepath
+func TestFileFromFile(t *testing.T, filepath string) (*os.File, func()) {
+	t.Helper()
+
 	content, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-	return TempFile(content)
+	return TestFile(t, content)
 }
