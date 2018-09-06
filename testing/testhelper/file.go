@@ -1,6 +1,7 @@
 package testhelper
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -38,6 +39,28 @@ func TestFile(t *testing.T, content interface{}) (*os.File, func()) {
 		t.Fatal(err)
 	}
 
+	return tmpfile, cleanup
+}
+
+// TestFileWithExtension is a utility function which creates a file with specified content
+// and extension. The passed content can be either a string or []byte
+func TestFileWithExtension(t *testing.T, content interface{}, extension string) (*os.File, func()) {
+	t.Helper()
+
+	tmpfile, cleanup := TestFile(t, content)
+	newFilename := fmt.Sprintf("%v.%v", tmpfile.Name(), extension)
+	if err := os.Rename(tmpfile.Name(), newFilename); err != nil {
+		cleanup()
+		t.Fatal(err)
+	}
+	cleanup = func() {
+		os.Remove(newFilename)
+	}
+	tmpfile, err := os.Open(newFilename)
+	if err != nil {
+		cleanup()
+		t.Fatal(err)
+	}
 	return tmpfile, cleanup
 }
 
