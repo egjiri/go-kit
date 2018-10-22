@@ -1,7 +1,6 @@
 package testing
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -85,7 +84,7 @@ func (test TestErr) Assert(t *testing.T) {
 // CompareValues does a deep compoare of the values and types of the passed
 func CompareValues(t *testing.T, actual interface{}, expected interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
-		showDiff(actual, expected)
+		showDiff(t, actual, expected)
 		if reflect.TypeOf(actual) == reflect.TypeOf(expected) {
 			t.Errorf("Expected: %v, Actual: %v", expected, actual)
 		} else {
@@ -97,7 +96,7 @@ func CompareValues(t *testing.T, actual interface{}, expected interface{}) {
 // CompareErrors compoares actual and expected errors
 func CompareErrors(t *testing.T, actualErr interface{}, expectedErr interface{}) bool {
 	if (actualErr != nil) != expectedErr {
-		showDiff(actualErr, expectedErr)
+		showDiff(t, actualErr, expectedErr)
 		t.Errorf("Expected error: %v, Actual error: %v", expectedErr, actualErr)
 		return false
 	}
@@ -111,10 +110,10 @@ func CompareValuesWithErrors(t *testing.T, actual []interface{}, expected []inte
 	}
 }
 
-func showDiff(actual interface{}, expected interface{}) {
+func showDiff(t *testing.T, actual interface{}, expected interface{}) {
 	if DiffVisible {
-		fmt.Println("↓↓↓↓↓↓↓↓↓↓ DIFF ↓↓↓↓↓↓↓↓↓↓")
-		fmt.Println(pretty.Diff(actual, expected))
-		fmt.Println("↑↑↑↑↑↑↑↑↑↑ DIFF ↑↑↑↑↑↑↑↑↑↑")
+		t.Log("↓↓↓↓↓↓↓↓↓↓ DIFF ↓↓↓↓↓↓↓↓↓↓")
+		t.Log(pretty.Diff(actual, expected))
+		t.Log("↑↑↑↑↑↑↑↑↑↑ DIFF ↑↑↑↑↑↑↑↑↑↑")
 	}
 }
